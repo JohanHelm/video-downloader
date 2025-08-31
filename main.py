@@ -1,16 +1,37 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from yt_dlp import YoutubeDL
+from threading import Thread
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def get_urls(urls_file):
+    with open(urls_file, 'r', encoding='utf-8') as file:
+        return file.readlines()
 
 
-# Press the green button in the gutter to run the script.
+def download_video(url):
+    ydl_opts = {"paths":
+                    {'home':
+                         "/home/pp/PycharmProjects/video-downloader/output",
+                     'temp': "/home/pp/PycharmProjects/video-downloader/parts"},
+                "quiet": True,
+                }
+    with YoutubeDL(ydl_opts) as ydl:
+        ydl.download(url)
+
+
+def spawn_threads(urls):
+    threads = []
+    for url in urls:
+        threads.append(Thread(target=download_video, args=(url, ), daemon=True))
+
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    urls = get_urls("downs_2.txt")
+    spawn_threads(urls)
+
